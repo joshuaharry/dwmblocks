@@ -112,7 +112,8 @@ int getstatus(char *str, char *last) {
   str[0] = '\0';
   for (unsigned int i = 0; i < LENGTH(blocks); i++)
     strcat(str, statusbar[i]);
-  str[strlen(str) - strlen(delim)] = '\0';
+  str[strlen(str) - strlen(delim)] = ' ';
+  str[strlen(str) - strlen(delim) + 1] = '\0';
   return strcmp(str, last); // 0 if they are the same
 }
 
