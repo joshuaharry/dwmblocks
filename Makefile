@@ -2,6 +2,9 @@ PREFIX ?= "${HOME}"/.local
 CC ?= cc
 LDFLAGS = -lX11
 
+debug: dwmblocks.c
+	clang dwmblocks.c $(LDFLAGS) -Wextra -g -o debug
+
 output: dwmblocks.c
 	${CC}  dwmblocks.c $(LDFLAGS) -o dwmblocks
 

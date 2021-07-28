@@ -48,17 +48,17 @@ static char statusstr[2][STATUSLENGTH];
 static int statusContinue = 1;
 
 // opens process *cmd and stores output in *output
-void getcmd(const Block *block, char *output) {
+unsigned int getcmd(const Block *block, char *output) {
+  unsigned int i = output[0] == ' ';
   FILE *cmdf = popen(block->command, "r");
   if (!cmdf)
-    return;
-  int i = output[0] == ' ';
+    return i;
   fgets(output + i, CMDLENGTH - i - delimLen, cmdf);
   i = strlen(output);
   if (i == 0) {
     // return if block and command output are both empty
     pclose(cmdf);
-    return;
+    return i;
   }
   if (delim[0] != '\0') {
     // only chop off newline if one is present at the end
@@ -67,6 +67,7 @@ void getcmd(const Block *block, char *output) {
   } else
     output[i++] = '\0';
   pclose(cmdf);
+  return i;
 }
 
 void getcmds(int time) {
