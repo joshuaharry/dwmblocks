@@ -12,7 +12,6 @@
 #define STATUSLENGTH (LENGTH(blocks) * CMDLENGTH + 1)
 
 typedef struct {
-  char *icon;
   char *command;
   unsigned int interval;
   unsigned int signal;
@@ -36,10 +35,10 @@ static int screen;
 static Window root;
 
 static const Block blocks[] = {
-    /*Icon*/ /*Command*/ /*Update Interval*/ /*Update Signal*/
-    {"", "weth", 1800, 0},
-    {"", "print-volume", 0, 8},
-    {"", "date '+%-l:%M %p '", 5, 0},
+    /*Command*/ /*Update Interval*/ /*Update Signal*/
+    {"weth", 1800, 0},
+    {"print-volume", 0, 8},
+    {"date '+%-l:%M %p'", 5, 0},
 };
 static char delim[] = " | ";
 static unsigned int delimLen = 5;
@@ -47,15 +46,13 @@ static unsigned int delimLen = 5;
 static char statusbar[LENGTH(blocks)][CMDLENGTH] = {0};
 static char statusstr[2][STATUSLENGTH];
 static int statusContinue = 1;
-static int returnStatus = 0;
 
 // opens process *cmd and stores output in *output
 void getcmd(const Block *block, char *output) {
-  strcpy(output, block->icon);
   FILE *cmdf = popen(block->command, "r");
   if (!cmdf)
     return;
-  int i = strlen(block->icon);
+  int i = output[0] == ' ';
   fgets(output + i, CMDLENGTH - i - delimLen, cmdf);
   i = strlen(output);
   if (i == 0) {
@@ -74,8 +71,12 @@ void getcmd(const Block *block, char *output) {
 
 void getcmds(int time) {
   const Block *current;
-  for (unsigned int i = 0; i < LENGTH(blocks); i++) {
+  unsigned int blocklen = LENGTH(blocks);
+  for (unsigned int i = 0; i < blocklen; i++) {
     current = blocks + i;
+    if (i == 0 || i == blocklen - 1) {
+      statusbar[i][0] = ' ';
+    }
     if ((current->interval != 0 && time % current->interval == 0) || time == -1)
       getcmd(current, statusbar[i]);
   }
