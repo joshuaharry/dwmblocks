@@ -73,14 +73,18 @@ unsigned int getcmd(const Block *block, char *output) {
 void getcmds(int time) {
   const Block *current;
   unsigned int blocklen = LENGTH(blocks);
-  for (unsigned int i = 0; i < blocklen; i++) {
+  unsigned int j = 0;
+  unsigned int i = 0;
+  for (; i < blocklen; i++) {
     current = blocks + i;
-    if (i == 0 || i == blocklen - 1) {
+    if (i == 0) {
       statusbar[i][0] = ' ';
     }
     if ((current->interval != 0 && time % current->interval == 0) || time == -1)
-      getcmd(current, statusbar[i]);
+      j = getcmd(current, statusbar[i]);
   }
+  statusbar[i][j] = ' ';
+  statusbar[i][j + 1] = '\0';
 }
 
 void getsigcmds(unsigned int signal) {
