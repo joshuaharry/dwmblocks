@@ -3,16 +3,9 @@
 #include<string.h>
 #include<unistd.h>
 #include<signal.h>
-#ifndef NO_X
 #include<X11/Xlib.h>
-#endif
-#ifdef __OpenBSD__
-#define SIGPLUS			SIGUSR1+1
-#define SIGMINUS		SIGUSR1-1
-#else
 #define SIGPLUS			SIGRTMIN
 #define SIGMINUS		SIGRTMIN
-#endif
 #define LENGTH(X)               (sizeof(X) / sizeof (X[0]))
 #define CMDLENGTH		50
 #define MIN( a, b ) ( ( a < b) ? a : b )
@@ -24,9 +17,7 @@ typedef struct {
 	unsigned int interval;
 	unsigned int signal;
 } Block;
-#ifndef __OpenBSD__
 void dummysighandler(int num);
-#endif
 void sighandler(int num);
 void getcmds(int time);
 void getsigcmds(unsigned int signal);
@@ -36,17 +27,12 @@ int getstatus(char *str, char *last);
 void statusloop();
 void termhandler();
 void pstdout();
-#ifndef NO_X
 void setroot();
 static void (*writestatus) () = setroot;
 static int setupX();
 static Display *dpy;
 static int screen;
 static Window root;
-#else
-static void (*writestatus) () = pstdout;
-#endif
-
 
 #include "blocks.h"
 
@@ -102,11 +88,9 @@ void getsigcmds(unsigned int signal)
 
 void setupsignals()
 {
-#ifndef __OpenBSD__
-	    /* initialize all real time signals with dummy handler */
-    for (int i = SIGRTMIN; i <= SIGRTMAX; i++)
-        signal(i, dummysighandler);
-#endif
+	/* initialize all real time signals with dummy handler */
+  for (int i = SIGRTMIN; i <= SIGRTMAX; i++)
+      signal(i, dummysighandler);
 
 	for (unsigned int i = 0; i < LENGTH(blocks); i++) {
 		if (blocks[i].signal > 0)
@@ -122,10 +106,9 @@ int getstatus(char *str, char *last)
 	for (unsigned int i = 0; i < LENGTH(blocks); i++)
 		strcat(str, statusbar[i]);
 	str[strlen(str)-strlen(delim)] = '\0';
-	return strcmp(str, last);//0 if they are the same
+	return strcmp(str, last); // 0 if they are the same
 }
 
-#ifndef NO_X
 void setroot()
 {
 	if (!getstatus(statusstr[0], statusstr[1]))//Only set root if text has changed.
@@ -145,7 +128,6 @@ int setupX()
 	root = RootWindow(dpy, screen);
 	return 1;
 }
-#endif
 
 void pstdout()
 {
@@ -170,13 +152,10 @@ void statusloop()
 	}
 }
 
-#ifndef __OpenBSD__
-/* this signal handler should do nothing */
 void dummysighandler(int signum)
 {
     return;
 }
-#endif
 
 void sighandler(int signum)
 {
@@ -197,17 +176,13 @@ int main(int argc, char** argv)
 		else if (!strcmp("-p",argv[i]))
 			writestatus = pstdout;
 	}
-#ifndef NO_X
 	if (!setupX())
 		return 1;
-#endif
 	delimLen = MIN(delimLen, strlen(delim));
 	delim[delimLen++] = '\0';
 	signal(SIGTERM, termhandler);
 	signal(SIGINT, termhandler);
 	statusloop();
-#ifndef NO_X
 	XCloseDisplay(dpy);
-#endif
 	return 0;
 }
