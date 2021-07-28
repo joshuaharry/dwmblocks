@@ -2,11 +2,11 @@ PREFIX ?= "${HOME}"/.local
 CC ?= cc
 LDFLAGS = -lX11
 
-output: dwmblocks.c blocks.h
+output: dwmblocks.c
 	${CC}  dwmblocks.c $(LDFLAGS) -o dwmblocks
 
 clean:
-	rm -f *.o *.gch dwmblocks
+	rm -f dwmblocks
 
 install: output
 	mkdir -p $(DESTDIR)$(PREFIX)/bin

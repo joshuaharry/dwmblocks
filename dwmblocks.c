@@ -34,7 +34,14 @@ static Display *dpy;
 static int screen;
 static Window root;
 
-#include "blocks.h"
+static const Block blocks[] = {
+	/*Icon*/	/*Command*/		/*Update Interval*/	/*Update Signal*/
+	{"", "weth",					            1800,		   0},
+	{"", "print-volume",					    0,		     8},
+	{"", "date '+%-l:%M %p '",					5,		     0},
+};
+static char delim[] = " | ";
+static unsigned int delimLen = 5;
 
 static char statusbar[LENGTH(blocks)][CMDLENGTH] = {0};
 static char statusstr[2][STATUSLENGTH];
