@@ -87,8 +87,12 @@ void getsigcmds(unsigned int signal) {
   const Block *current;
   for (unsigned int i = 0; i < LENGTH(blocks); i++) {
     current = blocks + i;
-    if (current->signal == signal)
+    if (current->signal == signal) {
+      if (i == 0) {
+        statusbar[i][0] = ' ';
+      }
       getcmd(current, statusbar[i]);
+    }
   }
 }
 
