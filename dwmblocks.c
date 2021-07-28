@@ -48,17 +48,17 @@ static char statusstr[2][STATUSLENGTH];
 static int statusContinue = 1;
 
 // opens process *cmd and stores output in *output
-unsigned int getcmd(const Block *block, char *output) {
-  unsigned int i = output[0] == ' ';
+void getcmd(const Block *block, char *output) {
   FILE *cmdf = popen(block->command, "r");
   if (!cmdf)
-    return i;
+    return;
+  unsigned int i = output[0] == ' ';
   fgets(output + i, CMDLENGTH - i - delimLen, cmdf);
   i = strlen(output);
   if (i == 0) {
     // return if block and command output are both empty
     pclose(cmdf);
-    return i;
+    return;
   }
   if (delim[0] != '\0') {
     // only chop off newline if one is present at the end
@@ -67,24 +67,18 @@ unsigned int getcmd(const Block *block, char *output) {
   } else
     output[i++] = '\0';
   pclose(cmdf);
-  return i;
 }
 
 void getcmds(int time) {
   const Block *current;
-  int blocklen = LENGTH(blocks);
-  for (int i = 0, j = 0; i < blocklen; i++) {
+  for (unsigned int i = 0; i < LENGTH(blocks); i++) {
     current = blocks + i;
     if (i == 0) {
       statusbar[i][0] = ' ';
     }
     if ((current->interval != 0 && time % current->interval == 0) ||
         time == -1) {
-      j = getcmd(current, statusbar[i]);
-    }
-    if (i == blocklen - 1) {
-      statusbar[i + 1][j] = ' ';
-      statusbar[i + 1][j + 1] = '\0';
+      getcmd(current, statusbar[i]);
     }
   }
 }
