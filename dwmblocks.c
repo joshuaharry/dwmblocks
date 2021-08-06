@@ -53,7 +53,11 @@ void getcmd(const Block *block, char *output) {
   if (!cmdf)
     return;
   unsigned int i = output[0] == ' ';
-  fgets(output + i, CMDLENGTH - i - delimLen, cmdf);
+  char* out = fgets(output + i, CMDLENGTH - i - delimLen, cmdf);
+  if (out == NULL) {
+    // Intentionally ignore; print nothing in the bar.
+    ;
+  }
   i = strlen(output);
   if (i == 0) {
     // return if block and command output are both empty
